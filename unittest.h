@@ -33,6 +33,18 @@ inline int runTests(){
 		try {
 			it.second();
 		}
+		catch (std::exception &e) {
+			std::cerr << "error: " << e.what() << endl;
+			test_result = -2;
+		}
+		catch (const char *c) {
+			std::cerr << "error: " << c << endl;
+			test_result = -2;
+		}
+		catch (const std::string &what) {
+			std::cerr << "error: " << what << endl;
+			test_result = -2;
+		}
 		catch (...) {
 			std::cerr << "error" << endl;
 			test_result = -2;
