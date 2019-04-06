@@ -28,7 +28,7 @@ inline int runTests(){
 	cout << "==== Starts test suit " << test_file_name <<  " ====" << endl << endl;
 
 	for (auto it: testMap){
-		cout << "--- running test " << it.first << " ---" << endl;
+		cout << "=== running test: " << it.first << " ===" << endl;
 		test_result = 0;
 
 #ifdef DO_NOT_CATCH_ERRORS
@@ -75,13 +75,13 @@ inline int runTests(){
 	}
 
 	cout << endl;
-	cout << "results: " << endl;
+	cout << "==== results: ===============================" << endl;
 	for (auto it: test_results) {
-		cout << it.first;
-		for (int i = it.first.size(); i < 40; ++i) {
+		cout << it.second;
+		for (int i = it.second.size(); i < 15; ++i) {
 			cout << " ";
 		}
-		cout << " :" << it.second << endl;
+		cout << " " << it.first << endl;
 	}
 	cout << endl;
 	if (numFailed){
