@@ -16,5 +16,3 @@ BraceWrapping:
   
 AlwaysBreakAfterReturnType: None
 PenaltyReturnTypeOnItsOwnLine: 1000000
-
-MaxEmptyLinesToKeep: 2
