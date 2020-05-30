@@ -6,7 +6,6 @@
  *      https://github.com/mls-m5/mls-unit-test
  */
 
-
 #pragma once
 
 #include <iostream>
@@ -16,7 +15,7 @@
 typedef void (*testFunction)();
 
 extern std::map<std::string, testFunction> testMap;
-extern int test_result;
+extern int testResult;
 extern const char *test_file_name;
 static std::map<std::string, std::string> test_results;
 
@@ -51,7 +50,7 @@ inline int runTests(int argc, char **argv) {
 
     for (auto it : testMap) {
         cout << "=== running test: " << it.first << " ===" << endl;
-        test_result = 0;
+        testResult = 0;
 
 #ifdef DO_NOT_CATCH_ERRORS
         it.second();
@@ -61,30 +60,30 @@ inline int runTests(int argc, char **argv) {
         }
         catch (std::exception &e) {
             std::cerr << "error: " << e.what() << endl;
-            test_result = -2;
+            testResult = -2;
         }
         catch (const char *c) {
             std::cerr << "error: " << c << endl;
-            test_result = -2;
+            testResult = -2;
         }
         catch (const std::string &what) {
             std::cerr << "error: " << what << endl;
-            test_result = -2;
+            testResult = -2;
         }
         catch (...) {
             std::cerr << "error" << endl;
-            test_result = -2;
+            testResult = -2;
         }
 #endif
-        if (test_result == -1) {
+        if (testResult == -1) {
             cout << " --> not impl" << endl << endl;
             test_results[it.first] = "not implemented";
         }
-        if (test_result == -2) {
+        if (testResult == -2) {
             cout << " --> crashed" << endl << endl;
             test_results[it.first] = "crashed!";
         }
-        else if (test_result) {
+        else if (testResult) {
             cout << " --> failed" << endl << endl << endl << endl;
             numFailed++;
             test_results[it.first] = "failed";
@@ -120,12 +119,11 @@ inline int runTests(int argc, char **argv) {
 
 #define TEST_SUIT_BEGIN                                                        \
     std::map<std::string, testFunction> testMap;                               \
-    int test_result;                                                           \
+    int testResult;                                                            \
     const char *test_file_name = __FILE__;                                     \
     void initTests() {                                                         \
         do {                                                                   \
         } while (false)
-
 
 // Remember to return 0 on success!!!
 #define TEST_CASE(name)                                                        \
@@ -144,7 +142,7 @@ inline int runTests(int argc, char **argv) {
 #define ASSERT(x, error)                                                       \
     if (!(x)) {                                                                \
         PRINT_INFO;                                                            \
-        test_result++;                                                         \
+        testResult++;                                                          \
         std::cout << #x << ": " << error << std::endl;                         \
         return;                                                                \
     }
@@ -154,18 +152,19 @@ inline int runTests(int argc, char **argv) {
 #define ASSERT_EQ(x, y)                                                        \
     if (!((x) == (y))) {                                                       \
         PRINT_INFO;                                                            \
-        test_result++;                                                         \
+        testResult++;                                                          \
         std::cout << #x << " = " << x << " is not equal to " << #y << " = "    \
                   << y << std::endl;                                           \
-        test_result++;                                                         \
+        testResult++;                                                          \
         return;                                                                \
     }
+
 #define ASSERT_NE(x, y)                                                        \
     if (((x) == (y))) {                                                        \
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is equal to " << #y << " = " << y   \
                   << std::endl;                                                \
-        test_result++;                                                         \
+        testResult++;                                                          \
         return;                                                                \
     }
 
@@ -174,7 +173,7 @@ inline int runTests(int argc, char **argv) {
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is not greater than " << #y         \
                   << " = " << y << std::endl;                                  \
-        test_result++;                                                         \
+        testResult++;                                                          \
         return;                                                                \
     }
 
@@ -183,7 +182,7 @@ inline int runTests(int argc, char **argv) {
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is not less than " << #y << " = "   \
                   << y << std::endl;                                           \
-        test_result++;                                                         \
+        testResult++;                                                          \
         return;                                                                \
     }
 
@@ -198,16 +197,32 @@ inline int runTests(int argc, char **argv) {
         }                                                                      \
     }
 
+#define EXPECT_THROW(expression, error)                                        \
+    {                                                                          \
+        bool threw = false;                                                    \
+        try {                                                                  \
+            expression;                                                        \
+        }                                                                      \
+        catch (error & e) {                                                    \
+            threw = true;                                                      \
+        }                                                                      \
+        if (!threw) {                                                          \
+            std::cout << "Expected exeption " << #error << ": got none"        \
+                      << std::endl;                                            \
+            testResult++;                                                      \
+            return;                                                            \
+        }                                                                      \
+    }
 
 #define ERROR(error)                                                           \
     PRINT_INFO;                                                                \
     std::cout << error << std::endl;                                           \
-    test_result++;                                                             \
+    testResult++;                                                              \
     return;
 
 // The not implemented error is used to flag for wanted features not implemented
 #define ERROR_NOT_IMPLEMENTED()                                                \
     PRINT_INFO;                                                                \
     std::cout << "not implemented" << std::endl;                               \
-    test_result = -1;                                                          \
+    testResult = -1;                                                           \
     return;
