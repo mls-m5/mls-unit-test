@@ -122,7 +122,10 @@ inline int runTests(int argc, char **argv) {
     std::map<std::string, testFunction> testMap;                               \
     int test_result;                                                           \
     const char *test_file_name = __FILE__;                                     \
-    void initTests() {
+    void initTests() {                                                         \
+        do {                                                                   \
+        } while (false)
+
 
 // Remember to return 0 on success!!!
 #define TEST_CASE(name)                                                        \
@@ -145,6 +148,9 @@ inline int runTests(int argc, char **argv) {
         std::cout << #x << ": " << error << std::endl;                         \
         return;                                                                \
     }
+
+#define EXPECT(x) ASSERT(x, "expression is not true")
+
 #define ASSERT_EQ(x, y)                                                        \
     if ((x != y)) {                                                            \
         PRINT_INFO;                                                            \
@@ -180,6 +186,18 @@ inline int runTests(int argc, char **argv) {
         test_result++;                                                         \
         return;                                                                \
     }
+
+#define ASSERT_NEAR(x, y, e)                                                   \
+    {                                                                          \
+        auto a = (x);                                                          \
+        auto b = (y);                                                          \
+        if (a + e < b || a > b + e) {                                          \
+            PRINT_INFO;                                                        \
+            std::cout << #x << " is not near " << #y << std::endl;             \
+            ++test_result;                                                     \
+        }                                                                      \
+    }
+
 
 #define ERROR(error)                                                           \
     PRINT_INFO;                                                                \
