@@ -152,7 +152,7 @@ inline int runTests(int argc, char **argv) {
 #define EXPECT(x) ASSERT(x, "expression is not true")
 
 #define ASSERT_EQ(x, y)                                                        \
-    if ((x != y)) {                                                            \
+    if (!((x) == (y))) {                                                       \
         PRINT_INFO;                                                            \
         test_result++;                                                         \
         std::cout << #x << " = " << x << " is not equal to " << #y << " = "    \
@@ -161,7 +161,7 @@ inline int runTests(int argc, char **argv) {
         return;                                                                \
     }
 #define ASSERT_NE(x, y)                                                        \
-    if ((x == y)) {                                                            \
+    if (((x) == (y))) {                                                        \
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is equal to " << #y << " = " << y   \
                   << std::endl;                                                \
@@ -170,7 +170,7 @@ inline int runTests(int argc, char **argv) {
     }
 
 #define ASSERT_GT(x, y)                                                        \
-    if (!(x > y)) {                                                            \
+    if (!((x) > (y))) {                                                        \
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is not greater than " << #y         \
                   << " = " << y << std::endl;                                  \
@@ -179,7 +179,7 @@ inline int runTests(int argc, char **argv) {
     }
 
 #define ASSERT_LT(x, y)                                                        \
-    if (!(x < y)) {                                                            \
+    if (!((x) < (y))) {                                                        \
         PRINT_INFO;                                                            \
         std::cout << #x << " = " << x << " is not less than " << #y << " = "   \
                   << y << std::endl;                                           \
