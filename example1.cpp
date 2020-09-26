@@ -30,11 +30,14 @@ struct TestStruct {
     int _a = 0;
 };
 
-
 // Begining of actual test code
 // This is what is supposed to be in a test file
 
 TEST_SUIT_BEGIN
+
+SETUP {
+    // Do setup required by the test, or just ommit this function
+}
 
 TEST_CASE("equalization test") {
     TestStruct testStruct1(1), testStruct2(1);

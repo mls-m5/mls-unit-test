@@ -8,29 +8,36 @@
 
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
+
+namespace unittest {
 
 typedef void (*testFunction)();
 
 extern std::map<std::string, testFunction> testMap;
 extern int testResult;
-extern const char *test_file_name;
-static std::map<std::string, std::string> test_results;
+extern const char *testFileName;
 
-inline int runTests(int argc, char **argv) {
-    using std::cout;
-    using std::endl;
-    int numFailed = 0;
-    int numSucceded = 0;
+namespace {
 
+std::map<std::string, std::string> testResults;
+std::function<void()> setup;
+
+} // namespace
+
+void initTests();
+
+//! Check which tests should be used or list tests
+inline int parseArguments(int argc, char **argv) {
     // Let the user choose test from command line
     if (argc > 1) {
         if (std::string(argv[1]) == "-l") {
-            cout << "available tests:" << endl;
+            std::cout << "available tests:" << std::endl;
             for (auto it : testMap) {
-                cout << it.first << endl;
+                std::cout << it.first << std::endl;
             }
             return 0;
         }
@@ -45,8 +52,23 @@ inline int runTests(int argc, char **argv) {
         }
     }
 
-    cout << "==== Starts test suit " << test_file_name << " ====" << endl
-         << endl;
+    return 1;
+}
+
+//! The main function used for running all the tests
+inline int runTests(int argc, char **argv) {
+    using std::cout;
+    using std::endl;
+    int numFailed = 0;
+    int numSucceded = 0;
+
+    if (!parseArguments(argc, argv)) {
+        return 0;
+    }
+
+    setup();
+
+    cout << "==== Starts test suit " << testFileName << " ====" << endl << endl;
 
     for (auto it : testMap) {
         cout << "=== running test: " << it.first << " ===" << endl;
@@ -77,27 +99,27 @@ inline int runTests(int argc, char **argv) {
 #endif
         if (testResult == -1) {
             cout << " --> not impl" << endl << endl;
-            test_results[it.first] = "not implemented";
+            testResults[it.first] = "not implemented";
         }
         if (testResult == -2) {
             cout << " --> crashed" << endl << endl;
-            test_results[it.first] = "crashed!";
+            testResults[it.first] = "crashed!";
         }
         else if (testResult) {
             cout << " --> failed" << endl << endl << endl << endl;
             numFailed++;
-            test_results[it.first] = "failed";
+            testResults[it.first] = "failed";
         }
         else {
             cout << " --> success " << endl << endl << endl << endl;
-            test_results[it.first] = "succeded";
+            testResults[it.first] = "succeded";
             numSucceded++;
         }
     }
 
     cout << endl;
     cout << "==== results: ===============================" << endl;
-    for (auto it : test_results) {
+    for (auto it : testResults) {
         cout << it.second;
         for (int i = it.second.size(); i < 15; ++i) {
             cout << " ";
@@ -117,26 +139,35 @@ inline int runTests(int argc, char **argv) {
     return numFailed > 0;
 }
 
-#define TEST_SUIT_BEGIN                                                        \
-    std::map<std::string, testFunction> testMap;                               \
-    int testResult;                                                            \
-    const char *test_file_name = __FILE__;                                     \
-    void initTests() {                                                         \
-        do {                                                                   \
-        } while (false)
+// Function to require semicolon after macro
+inline void semicolon(){};
 
-// Remember to return 0 on success!!!
+} // namespace unittest
+
+#define TEST_SUIT_BEGIN                                                        \
+    std::map<std::string, unittest::testFunction> unittest::testMap;           \
+    int unittest::testResult;                                                  \
+    const char *unittest::testFileName = __FILE__;                             \
+    void unittest::initTests() {                                               \
+        unittest::semicolon()
+
 #define TEST_CASE(name)                                                        \
     ;                                                                          \
-    testMap[name] = []() -> void
+    unittest::testMap[name] = []() -> void
 
 #define TEST_SUIT_END                                                          \
     ;                                                                          \
     }                                                                          \
     int main(int argc, char **argv) {                                          \
-        initTests();                                                           \
-        return runTests(argc, argv);                                           \
+        unittest::initTests();                                                 \
+        return unittest::runTests(argc, argv);                                 \
     }
+
+#define SETUP                                                                  \
+    ;                                                                          \
+    unittest::setup = []() -> void
+
+//! -------------- Asserts and tests -----------------------------------
 
 #define PRINT_INFO std::cout << __FILE__ << ":" << __LINE__ << ": ";
 #define ASSERT(x, error)                                                       \
@@ -145,7 +176,8 @@ inline int runTests(int argc, char **argv) {
         testResult++;                                                          \
         std::cout << #x << ": " << error << std::endl;                         \
         return;                                                                \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define EXPECT(x) ASSERT(x, "expression is not true")
 
@@ -157,7 +189,8 @@ inline int runTests(int argc, char **argv) {
                   << y << std::endl;                                           \
         testResult++;                                                          \
         return;                                                                \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define ASSERT_NE(x, y)                                                        \
     if (((x) == (y))) {                                                        \
@@ -166,7 +199,8 @@ inline int runTests(int argc, char **argv) {
                   << std::endl;                                                \
         testResult++;                                                          \
         return;                                                                \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define ASSERT_GT(x, y)                                                        \
     if (!((x) > (y))) {                                                        \
@@ -175,7 +209,8 @@ inline int runTests(int argc, char **argv) {
                   << " = " << y << std::endl;                                  \
         testResult++;                                                          \
         return;                                                                \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define ASSERT_LT(x, y)                                                        \
     if (!((x) < (y))) {                                                        \
@@ -184,7 +219,8 @@ inline int runTests(int argc, char **argv) {
                   << y << std::endl;                                           \
         testResult++;                                                          \
         return;                                                                \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define ASSERT_NEAR(x, y, e)                                                   \
     {                                                                          \
@@ -195,7 +231,8 @@ inline int runTests(int argc, char **argv) {
             std::cout << #x << " is not near " << #y << std::endl;             \
             ++test_result;                                                     \
         }                                                                      \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define EXPECT_THROW(expression, error)                                        \
     {                                                                          \
@@ -212,17 +249,20 @@ inline int runTests(int argc, char **argv) {
             testResult++;                                                      \
             return;                                                            \
         }                                                                      \
-    }
+    }                                                                          \
+    unittest::semicolon()
 
 #define ERROR(error)                                                           \
     PRINT_INFO;                                                                \
     std::cout << error << std::endl;                                           \
     testResult++;                                                              \
-    return;
+    return;                                                                    \
+    unittest::semicolon()
 
 // The not implemented error is used to flag for wanted features not implemented
 #define ERROR_NOT_IMPLEMENTED()                                                \
     PRINT_INFO;                                                                \
     std::cout << "not implemented" << std::endl;                               \
     testResult = -1;                                                           \
-    return;
+    return;                                                                    \
+    unittest::semicolon()
