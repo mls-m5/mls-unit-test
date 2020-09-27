@@ -1,12 +1,20 @@
+#include "mock.h"
 #include "unittest.h"
 
 // This struct would normaly be written in another file
 // and the test case would only linked to that file for testing
 
-struct TestStruct {
-    TestStruct() {}
+class IObject {
+public:
+    virtual int update() = 0;
+    virtual void setValue(int) = 0;
+};
 
-    TestStruct(int value) {
+//! Example of a class that could be tested
+struct TestStruct {
+    TestStruct(IObject *object) : _object(object) {}
+
+    TestStruct(int value, IObject *object) : _object(object) {
         a(value);
     }
 
@@ -25,9 +33,17 @@ struct TestStruct {
 
     void a(int val) {
         _a = val;
+        _object->update();
     }
 
     int _a = 0;
+    IObject *_object;
+};
+
+class MockObject : public IObject {
+public:
+    MOCK_METHOD(int, update);
+    MOCK_METHOD1(void, setValue, (int));
 };
 
 // Begining of actual test code
@@ -40,7 +56,8 @@ SETUP {
 }
 
 TEST_CASE("equalization test") {
-    TestStruct testStruct1(1), testStruct2(1);
+    MockObject object;
+    TestStruct testStruct1(1, &object), testStruct2(1, &object);
 
     ASSERT(testStruct1 == testStruct2, "something went wrong");
 
@@ -49,7 +66,11 @@ TEST_CASE("equalization test") {
 }
 
 TEST_CASE("failing test") {
-    TestStruct testStruct1, testStruct2;
+    MockObject object;
+    TestStruct testStruct1(&object), testStruct2(&object);
+
+    object.mock_update.expectCall(2);
+
     testStruct1.a(1);
     testStruct2.a(2);
 

@@ -8,6 +8,7 @@ namespace unittest {
 extern int testResult;
 extern const char *testFileName;
 
+//! Mark the test as failed
 void failTest() {
     ++testResult;
 }

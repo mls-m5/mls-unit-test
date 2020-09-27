@@ -1,6 +1,8 @@
 mls-unit-test
 =============
 
-A minimalist unittest contained in a single header
+A minimalist single header unittest.
 
-Using c++11 syntax, remember -std=c++11 flag or similar
+Compile with at least -std=c++14 or similar.
+
+Se example1.cpp for usage example.
