@@ -12,6 +12,7 @@
 #include "unittestvars.h"
 #include <functional>
 #include <iostream>
+#include <optional>
 
 #define INTERNAL_MOCK_METHOD_COMMON(ret, name, args)                           \
     using name##T = ret(args);                                                 \
@@ -169,6 +170,14 @@ public:
     //! Call the function
     ReturnT operator()(ArgsT... args) {
         ++_numCalls;
+        if (_expectedArgs) {
+            if (!_expectedArgs(args...)) {
+                std::cerr << "Argument value(s) does not match expected "
+                             "value(s) for function '"
+                          << _name << "'\n";
+                failTest();
+            }
+        }
         if (_onCall) {
             return _onCall(args...);
         }
@@ -183,6 +192,22 @@ public:
     void expectCall(size_t num) {
         checkCalls();
         _expectedNumCalls = num;
+    }
+
+    //! Pass a function to check if arguments fullfill the
+    MockedFunction &expectArgs(std::function<bool(ArgsT...)> matcher) {
+        _expectedArgs = matcher;
+        return *this;
+    }
+
+    //! Set values that is to be compared with a function call
+    void expectArgs(ArgsT... args) {
+        auto argTuple = std::tuple<ArgsT...>{args...};
+
+        _expectedArgs = [argTuple](ArgsT &&... a) -> bool {
+            auto comparisonTuple = std::tuple<ArgsT...>{a...};
+            return comparisonTuple == argTuple;
+        };
     }
 
     //! Function to be called when the mocked function is used
@@ -214,6 +239,7 @@ private:
 
     ReturnStruct<ReturnT> _returnValue = {};
     std::function<ReturnT(ArgsT...)> _onCall;
+    std::function<bool(ArgsT...)> _expectedArgs;
     size_t _numCalls = 0;
     size_t _expectedNumCalls = 0;
     std::string _name;
