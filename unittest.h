@@ -12,14 +12,13 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include "unittestvars.h"
 
 namespace unittest {
 
 typedef void (*testFunction)();
 
 extern std::map<std::string, testFunction> testMap;
-extern int testResult;
-extern const char *testFileName;
 
 namespace {
 
