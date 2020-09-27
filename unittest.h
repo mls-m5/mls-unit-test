@@ -66,7 +66,9 @@ inline int runTests(int argc, char **argv) {
         return 0;
     }
 
-    setup();
+    if (setup) {
+        setup();
+    }
 
     cout << "==== Starts test suit " << testFileName << " ====" << endl << endl;
 
