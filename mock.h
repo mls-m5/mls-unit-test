@@ -14,11 +14,24 @@
 #include <iostream>
 #include <optional>
 
-#define INTERNAL_MOCK_METHOD_COMMON(ret, name, args)                           \
-    using name##T = ret(args);                                                 \
-    unittest::MockedFunction<ret(args)> mock_##name =                          \
-        unittest::MockedFunction<ret(args)>(#name);
-
+//! Usage:
+//! say you have a class like
+//! ```
+//! class IObject {
+//! public:
+//! 	int doStuff() = 0;
+//!     void doStuff2(int a, int b) = 0;
+//! };
+//! ```
+//!
+//! then you can mock it with
+//! ```
+//! class MockObject: public IObject {
+//! public:
+//! 	MOCK_METHOD(int, doStuff)
+//!     MOCK_METHOD2(int, doStuff2, (int, int))
+//! };
+//! ```
 #define MOCK_METHOD(ret, name)                                                 \
     INTERNAL_MOCK_METHOD_COMMON(ret, name, ())                                 \
     ret name() {                                                               \
@@ -129,6 +142,11 @@
              typename unittest::MockedFunction<name##T>::ArgT<9>::type j) {    \
         return mock_##name(a, b, c, d, e, f, g, h, i, j);                      \
     }
+
+#define INTERNAL_MOCK_METHOD_COMMON(ret, name, args)                           \
+    using name##T = ret(args);                                                 \
+    unittest::MockedFunction<ret(args)> mock_##name =                          \
+        unittest::MockedFunction<ret(args)>(#name);
 
 namespace unittest {
 
