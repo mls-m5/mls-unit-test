@@ -189,9 +189,11 @@ public:
     //! Set the number times the function is expected to be called
     //! If expectCall is set previously a check is done before
     //! resetting the number of calls required
-    void expectCall(size_t num) {
+    MockedFunction &expectNum(size_t num) {
         checkCalls();
         _expectedNumCalls = num;
+
+        return *this;
     }
 
     //! Pass a function to check if arguments fullfill the
@@ -201,18 +203,21 @@ public:
     }
 
     //! Set values that is to be compared with a function call
-    void expectArgs(ArgsT... args) {
+    MockedFunction &expectArgs(ArgsT... args) {
         auto argTuple = std::tuple<ArgsT...>{args...};
 
         _expectedArgs = [argTuple](ArgsT &&... a) -> bool {
             auto comparisonTuple = std::tuple<ArgsT...>{a...};
             return comparisonTuple == argTuple;
         };
+
+        return *this;
     }
 
     //! Function to be called when the mocked function is used
-    void onCall(std::function<ReturnT(ArgsT...)> f) {
+    MockedFunction &onCall(std::function<ReturnT(ArgsT...)> f) {
         _onCall = f;
+        return *this;
     }
 
     //! Sets the value to return if no function if set with onCall
