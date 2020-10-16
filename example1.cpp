@@ -7,7 +7,8 @@
 class IObject {
 public:
     virtual int update() = 0;
-    virtual void setValue(int) = 0;
+    virtual void value(int) = 0;
+    virtual int value() const = 0;
 };
 
 //! Example of a class that could be tested
@@ -40,10 +41,15 @@ struct TestStruct {
     IObject *_object;
 };
 
+#define name(x, y) x##10
+
+int name(x, y);
+
 class MockObject : public IObject {
 public:
     MOCK_METHOD(int, update)
-    MOCK_METHOD1(void, setValue, (int))
+    MOCK_METHOD1(void, value, (int))
+    MOCK_METHOD(int, value, const);
 };
 
 // Begining of actual test code
@@ -69,7 +75,7 @@ TEST_CASE("failing test") {
     MockObject object;
     TestStruct testStruct1(&object), testStruct2(&object);
 
-    object.mock_update.expectNum(2);
+    object.mock_update0.expectNum(2);
 
     testStruct1.a(1);
     testStruct2.a(2);
