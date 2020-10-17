@@ -182,9 +182,10 @@ struct ReturnStruct {
 //! Specialization for reference type return value
 template <typename T>
 struct ReturnStruct<T &> {
-    using type = T;
-    type *value = {};
-    ReturnStruct(T &value = {}) : value(&value) {}
+    using type = T &;
+    T *value = {};
+    ReturnStruct() = default;
+    ReturnStruct(T &value) : value(&value) {}
 
     type &get() const {
         if (value) {
@@ -308,6 +309,18 @@ public:
         onCall([value = ReturnStruct<ReturnT>{value}](ArgsT...) {
             return value.get();
         });
+    }
+
+    //! Same as above but return reference
+    void returnValueRef(
+        std::remove_reference_t<typename ReturnStruct<ReturnT>::type> &value)
+        const {
+        static_assert(!std::is_same<ReturnT, void>::value,
+                      "cannot set return value of void type");
+        onCall(
+            [&value](ArgsT...)
+                -> std::remove_reference_t<typename ReturnStruct<ReturnT>::type>
+                    & { return value; });
     }
 
     //! Specify a variable to move from for return values that is not copy
