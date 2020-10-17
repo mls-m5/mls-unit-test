@@ -12,7 +12,7 @@
 #include "unittestvars.h"
 #include <functional>
 #include <iostream>
-#include <optional>
+#include <limits>
 
 //! Usage:
 //! say you have a class like
@@ -34,7 +34,10 @@
 //!     MOCK_METHOD2(int, doStuff3, (int, int), const)
 //! };
 //! ```
-#define MOCK_METHOD(ret, name, attr...)                                        \
+#define MOCK_METHOD(ret, name, args, attr...)                                  \
+    MOCK_GET_MACRO_NAME(args)                                                  \
+    (ret, name, args, attr)
+
 #define MOCK_METHOD0(ret, name, args, attr...)                                 \
     INTERNAL_MOCK_METHOD_COMMON(ret, name, (), 0)                              \
     ret name() attr {                                                          \
