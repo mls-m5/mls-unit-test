@@ -40,6 +40,8 @@
         return mock_##name##0();                                               \
     }
 
+#define MOCK_METHOD0(ret, name, args, attr...) MOCK_METHOD(ret, name, attr)
+
 #define MOCK_METHOD1(ret, name, args, attr...)                                 \
     INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 1)                            \
     ret name(typename unittest::MockedFunction<name##1##T>::ArgT<0>::type a)   \
@@ -160,19 +162,43 @@
 
 namespace unittest {
 
+//! Struct for handling return values of different types
 template <typename T>
 struct ReturnStruct {
     using type = T;
-    T value = {};
-    T get() {
+    type value = {};
+
+    type &&get() {
+        return std::move(value);
+    }
+
+    type get() const {
         return value;
     }
 };
 
+//! Specialization for reference type return value
+template <typename T>
+struct ReturnStruct<T &> {
+    using type = T;
+    type *value = {};
+    ReturnStruct(T &value = {}) : value(&value) {}
+
+    type &get() const {
+        if (value) {
+            return *value;
+        }
+        throw std::runtime_error(
+            std::string("no return value for reference set ") +
+            typeid(type).name());
+    }
+};
+
+//! For handling void arguments
 template <>
 struct ReturnStruct<void> {
     using type = char;
-    void get() {}
+    void get() const {}
 };
 
 template <typename T>
@@ -211,9 +237,7 @@ public:
         if (_onCall) {
             return _onCall(args...);
         }
-        else {
-            return _returnValue.get();
-        }
+        return ReturnStruct<ReturnT>().get();
     }
 
     //! Set the number times the function is expected to be called
@@ -253,9 +277,24 @@ public:
     //! Sets the value to return if no function if set with onCall
     //! function
     void returnValue(typename ReturnStruct<ReturnT>::type value) const {
-        _returnValue = value;
         static_assert(!std::is_same<ReturnT, void>::value,
                       "cannot set return value of void type");
+        _onCall = [value = ReturnStruct<ReturnT>{value}](ArgsT...) {
+            return value.get();
+        };
+    }
+
+    //! Specify a variable to move from for return values that is not copy
+    //! constructable
+    //! for example:
+    //!
+    //! std::unique_ptr<int> p;
+    //! mock_x.returnValueMoved(p);
+    void returnValueMoved(
+        typename ReturnStruct<ReturnT>::type &moveFrom) const {
+        static_assert(!std::is_same<ReturnT, void>::value,
+                      "cannot set return value of void type");
+        _onCall = [&moveFrom](ArgsT...) mutable { return std::move(moveFrom); };
     }
 
 private:
@@ -272,7 +311,6 @@ private:
         _expectedNumCalls = 0;
     }
 
-    mutable ReturnStruct<ReturnT> _returnValue = {};
     mutable std::function<ReturnT(ArgsT...)> _onCall;
     mutable std::function<bool(ArgsT...)> _expectedArgs;
     mutable size_t _numCalls = 0;
