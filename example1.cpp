@@ -41,15 +41,11 @@ struct TestStruct {
     IObject *_object;
 };
 
-#define name(x, y) x##10
-
-int name(x, y);
-
 class MockObject : public IObject {
 public:
-    MOCK_METHOD(int, update)
+    MOCK_METHOD0(int, update, ())
     MOCK_METHOD1(void, value, (int))
-    MOCK_METHOD(int, value, const);
+    MOCK_METHOD0(int, value, (), const);
 };
 
 // Begining of actual test code
@@ -75,7 +71,7 @@ TEST_CASE("failing test") {
     MockObject object;
     TestStruct testStruct1(&object), testStruct2(&object);
 
-    object.mock_update0.expectNum(2);
+    object.mock_update_0.expectNum(2);
 
     testStruct1.a(1);
     testStruct2.a(2);

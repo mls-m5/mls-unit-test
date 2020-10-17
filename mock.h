@@ -35,18 +35,17 @@
 //! };
 //! ```
 #define MOCK_METHOD(ret, name, attr...)                                        \
+#define MOCK_METHOD0(ret, name, args, attr...)                                 \
     INTERNAL_MOCK_METHOD_COMMON(ret, name, (), 0)                              \
     ret name() attr {                                                          \
-        return mock_##name##0();                                               \
+        return (mock_##name##_##0).run();                                      \
     }
-
-#define MOCK_METHOD0(ret, name, args, attr...) MOCK_METHOD(ret, name, attr)
 
 #define MOCK_METHOD1(ret, name, args, attr...)                                 \
     INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 1)                            \
     ret name(typename unittest::MockedFunction<name##1##T>::ArgT<0>::type a)   \
         attr {                                                                 \
-        return mock_##name##1(a);                                              \
+        return (mock_##name##_##1).run(a);                                     \
     }
 
 #define MOCK_METHOD2(ret, name, args, attr...)                                 \
@@ -54,7 +53,7 @@
     ret name(typename unittest::MockedFunction<name##2##T>::ArgT<0>::type a,   \
              typename unittest::MockedFunction<name##2##T>::ArgT<1>::type b)   \
         attr {                                                                 \
-        return mock_##name##2(a, b);                                           \
+        return (mock_##name##_##2).run(a, b);                                  \
     }
 
 #define MOCK_METHOD3(ret, name, args, attr...)                                 \
@@ -63,7 +62,7 @@
              typename unittest::MockedFunction<name##3##T>::ArgT<1>::type b,   \
              typename unittest::MockedFunction<name##3##T>::ArgT<2>::type c)   \
         attr {                                                                 \
-        return mock_##name##3(a, b, c);                                        \
+        return (mock_##name##_##3).run(a, b, c);                               \
     }
 
 #define MOCK_METHOD4(ret, name, args, attr...)                                 \
@@ -72,7 +71,7 @@
              typename unittest::MockedFunction<name##4##T>::ArgT<1>::type b,   \
              typename unittest::MockedFunction<name##4##T>::ArgT<2>::type c,   \
              typename unittest::MockedFunction<name##4##T>::ArgT<3>::type d) { \
-        return mock_##name##4(a, b, c, d);                                     \
+        return (mock_##name##_##4).run(a, b, c, d);                            \
     }
 
 #define MOCK_METHOD5(ret, name, args, attr...)                                 \
@@ -83,7 +82,7 @@
              typename unittest::MockedFunction<name##5##T>::ArgT<3>::type d,   \
              typename unittest::MockedFunction<name##5##T>::ArgT<4>::type e)   \
         attr {                                                                 \
-        return mock_##name##5(a, b, c, d, e);                                  \
+        return (mock_##name##_##5).run(a, b, c, d, e);                         \
     }
 
 #define MOCK_METHOD6(ret, name, args, attr...)                                 \
@@ -94,7 +93,7 @@
              typename unittest::MockedFunction<name##6##T>::ArgT<3>::type d,   \
              typename unittest::MockedFunction<name##6##T>::ArgT<4>::type e,   \
              typename unittest::MockedFunction<name##6##T>::ArgT<5>::type f) { \
-        return mock_##name##6(a, b, c, d, e, f);                               \
+        return (mock_##name##_##6).run(a, b, c, d, e, f);                      \
     }
 
 #define MOCK_METHOD7(ret, name, args)                                          \
@@ -107,7 +106,7 @@
              typename unittest::MockedFunction<name##7##T>::ArgT<5>::type f,   \
              typename unittest::MockedFunction<name##7##T>::ArgT<6>::type g)   \
         attr {                                                                 \
-        return mock_##name##7(a, b, c, d, e, f, g);                            \
+        return (mock_##name##_##7).run(a, b, c, d, e, f, g);                   \
     }
 
 #define MOCK_METHOD8(ret, name, args, attr...)                                 \
@@ -121,7 +120,7 @@
              typename unittest::MockedFunction<name##8##T>::ArgT<6>::type g,   \
              typename unittest::MockedFunction<name##8##T>::ArgT<7>::type h)   \
         attr {                                                                 \
-        return mock_##name##8(a, b, c, d, e, f, g, h);                         \
+        return (mock_##name##_##8).run(a, b, c, d, e, f, g, h);                \
     }
 
 #define MOCK_METHOD9(ret, name, args, attr...)                                 \
@@ -136,7 +135,7 @@
              typename unittest::MockedFunction<name##9##T>::ArgT<7>::type h,   \
              typename unittest::MockedFunction<name##9##T>::ArgT<8>::type i)   \
         attr {                                                                 \
-        return mock_##name##9(a, b, c, d, e, f, g, h, i);                      \
+        return (mock_##name##_##9).run(a, b, c, d, e, f, g, h, i);             \
     }
 
 #define MOCK_METHOD10(ret, name, args, attr...)                                \
@@ -152,13 +151,13 @@
              typename unittest::MockedFunction<name##10##T>::ArgT<8>::type i,  \
              typename unittest::MockedFunction<name##10##T>::ArgT<9>::type j)  \
         attr {                                                                 \
-        return mock_##name##10(a, b, c, d, e, f, g, h, i, j);                  \
+        return (mock_##name##_##10).run(a, b, c, d, e, f, g, h, i, j);         \
     }
 
 #define INTERNAL_MOCK_METHOD_COMMON(ret, name, args, uniqueid)                 \
     using name##uniqueid##T = ret(args);                                       \
-    unittest::MockedFunction<ret(args)> mock_##name##uniqueid =                \
-        unittest::MockedFunction<ret(args)>(#name);
+    unittest::MockedFunction<ret(args)> mock_##name##_##uniqueid =             \
+        unittest::MockedFunction<ret(args)>(#name, uniqueid);
 
 namespace unittest {
 
@@ -217,14 +216,15 @@ public:
 
     using RetT = ReturnT;
 
-    MockedFunction(std::string name) : _name(name) {}
+    MockedFunction(std::string name, size_t num)
+        : _name(name + " (" + std::to_string(num) + ")") {}
 
     ~MockedFunction() {
         checkCalls();
     }
 
     //! Call the function
-    ReturnT operator()(ArgsT... args) const {
+    ReturnT run(ArgsT... args) const {
         ++_numCalls;
         if (_expectedArgs) {
             if (!_expectedArgs(args...)) {
@@ -243,16 +243,32 @@ public:
     //! Set the number times the function is expected to be called
     //! If expectCall is set previously a check is done before
     //! resetting the number of calls required
-    auto &expectNum(size_t num) const {
+    auto &expectNum(int num) const {
         checkCalls();
         _expectedNumCalls = num;
 
         return *this;
     }
 
+    void expectMinNum(int num) const {
+        checkCalls();
+        _expectedNumCalls = -num;
+    }
+
+    //! Be nice to the user of the function: do not care about number of
+    //! times called at all
+    void nice() const {
+        _expectedNumCalls = std::numeric_limits<int>::max();
+    }
+
     //! Pass a function to check if arguments fullfill the
     auto &expectArgs(std::function<bool(ArgsT...)> matcher) const {
         _expectedArgs = matcher;
+
+        if (!_expectedArgs) {
+            expectMinNum(1);
+        }
+
         return *this;
     }
 
@@ -265,12 +281,19 @@ public:
             return comparisonTuple == argTuple;
         };
 
+        if (!_expectedNumCalls) {
+            expectMinNum(1);
+        }
+
         return *this;
     }
 
     //! Function to be called when the mocked function is used
     auto &onCall(std::function<ReturnT(ArgsT...)> f) const {
         _onCall = f;
+        if (!_expectedNumCalls) {
+            nice();
+        }
         return *this;
     }
 
@@ -279,9 +302,9 @@ public:
     void returnValue(typename ReturnStruct<ReturnT>::type value) const {
         static_assert(!std::is_same<ReturnT, void>::value,
                       "cannot set return value of void type");
-        _onCall = [value = ReturnStruct<ReturnT>{value}](ArgsT...) {
+        onCall([value = ReturnStruct<ReturnT>{value}](ArgsT...) {
             return value.get();
-        };
+        });
     }
 
     //! Specify a variable to move from for return values that is not copy
@@ -294,16 +317,31 @@ public:
         typename ReturnStruct<ReturnT>::type &moveFrom) const {
         static_assert(!std::is_same<ReturnT, void>::value,
                       "cannot set return value of void type");
-        _onCall = [&moveFrom](ArgsT...) mutable { return std::move(moveFrom); };
+        onCall([&moveFrom](ArgsT...) mutable { return std::move(moveFrom); });
     }
 
 private:
     //! Check and resets the the number set with expectCall
     void checkCalls() const {
+        if (_expectedNumCalls == std::numeric_limits<int>::max()) {
+            return;
+        }
+
+        if (_expectedNumCalls < 0) {
+            if (-_numCalls > _expectedNumCalls) {
+                std::cerr << "function " << _name
+                          << " expected to be called at least "
+                          << -_expectedNumCalls << " times but was called "
+                          << _numCalls << " times \n";
+                unittest::failTest();
+            }
+            return;
+        }
+
         if (_numCalls != _expectedNumCalls) {
             std::cerr << "function " << _name << " expected to be called "
-                      << _expectedNumCalls << " but was called " << _numCalls
-                      << " times \n";
+                      << _expectedNumCalls << " times but was called "
+                      << _numCalls << " times \n";
             unittest::failTest();
         }
 
@@ -313,8 +351,8 @@ private:
 
     mutable std::function<ReturnT(ArgsT...)> _onCall;
     mutable std::function<bool(ArgsT...)> _expectedArgs;
-    mutable size_t _numCalls = 0;
-    mutable size_t _expectedNumCalls = 0;
+    mutable int _numCalls = 0;
+    mutable int _expectedNumCalls = 0;
     std::string _name;
 };
 
