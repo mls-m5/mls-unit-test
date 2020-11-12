@@ -29,9 +29,9 @@
 //! ```
 //! class MockObject: public IObject {
 //! public:
-//!     MOCK_METHOD(int, doStuff)
-//!     MOCK_METHOD2(int, doStuff2, (int, int))
-//!     MOCK_METHOD2(int, doStuff3, (int, int), const)
+//!     MOCK_METHOD(int, doStuff, override)
+//!     MOCK_METHOD2(int, doStuff2, (int, int), override)
+//!     MOCK_CONST_METHOD2(int, doStuff3, (int, int), override)
 //! };
 //! ```
 #define MOCK_METHOD(ret, name, args, attr...)                                  \
@@ -39,122 +39,167 @@
     (ret, name, args, attr)
 
 #define MOCK_METHOD0(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, (), 0)                              \
+    INTERNAL_MOCK_METHOD0(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD0(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD0(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD0(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, (), 0)                          \
     ret name() attr {                                                          \
-        return (mock_##name##_##0).run();                                      \
+        return (mock_##mockName##_##0).run();                                  \
     }
 
 #define MOCK_METHOD1(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 1)                            \
-    ret name(typename unittest::MockedFunction<name##1##T>::ArgT<0>::type a)   \
+    INTERNAL_MOCK_METHOD1(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD1(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD1(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD1(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 1)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##1##T>::ArgT<0>::type a)    \
         attr {                                                                 \
-        return (mock_##name##_##1).run(a);                                     \
+        return (mock_##mockName##_##1).run(a);                                 \
     }
 
 #define MOCK_METHOD2(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 2)                            \
-    ret name(typename unittest::MockedFunction<name##2##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##2##T>::ArgT<1>::type b)   \
+    INTERNAL_MOCK_METHOD2(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD2(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD2(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD2(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 2)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##2##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##2##T>::ArgT<1>::type b)    \
         attr {                                                                 \
-        return (mock_##name##_##2).run(a, b);                                  \
+        return (mock_##mockName##_##2).run(a, b);                              \
     }
 
 #define MOCK_METHOD3(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 3)                            \
-    ret name(typename unittest::MockedFunction<name##3##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##3##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##3##T>::ArgT<2>::type c)   \
+    INTERNAL_MOCK_METHOD3(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD3(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD3(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD3(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 3)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##3##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##3##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##3##T>::ArgT<2>::type c)    \
         attr {                                                                 \
-        return (mock_##name##_##3).run(a, b, c);                               \
+        return (mock_##mockName##_##3).run(a, b, c);                           \
     }
 
 #define MOCK_METHOD4(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 4)                            \
-    ret name(typename unittest::MockedFunction<name##4##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##4##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##4##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##4##T>::ArgT<3>::type d) { \
-        return (mock_##name##_##4).run(a, b, c, d);                            \
+    INTERNAL_MOCK_METHOD4(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD4(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD4(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD4(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 4)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##4##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##4##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##4##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##4##T>::ArgT<3>::type d)    \
+        attr {                                                                 \
+        return (mock_##mockName##_##4).run(a, b, c, d);                        \
     }
 
 #define MOCK_METHOD5(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 5)                            \
-    ret name(typename unittest::MockedFunction<name##5##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##5##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##5##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##5##T>::ArgT<3>::type d,   \
-             typename unittest::MockedFunction<name##5##T>::ArgT<4>::type e)   \
+    INTERNAL_MOCK_METHOD5(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD5(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD5(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD5(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 5)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##5##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##5##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##5##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##5##T>::ArgT<3>::type d,    \
+        typename unittest::MockedFunction<mockName##5##T>::ArgT<4>::type e)    \
         attr {                                                                 \
-        return (mock_##name##_##5).run(a, b, c, d, e);                         \
+        return (mock_##mockName##_##5).run(a, b, c, d, e);                     \
     }
 
 #define MOCK_METHOD6(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 6)                            \
-    ret name(typename unittest::MockedFunction<name##6##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##6##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##6##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##6##T>::ArgT<3>::type d,   \
-             typename unittest::MockedFunction<name##6##T>::ArgT<4>::type e,   \
-             typename unittest::MockedFunction<name##6##T>::ArgT<5>::type f) { \
-        return (mock_##name##_##6).run(a, b, c, d, e, f);                      \
+    INTERNAL_MOCK_METHOD6(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD6(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD6(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD6(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 6)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<3>::type d,    \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<4>::type e,    \
+        typename unittest::MockedFunction<mockName##6##T>::ArgT<5>::type f)    \
+        attr {                                                                 \
+        return (mock_##mockName##_##6).run(a, b, c, d, e, f);                  \
     }
 
-#define MOCK_METHOD7(ret, name, args)                                          \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 7)                            \
-    ret name(typename unittest::MockedFunction<name##7##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<3>::type d,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<4>::type e,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<5>::type f,   \
-             typename unittest::MockedFunction<name##7##T>::ArgT<6>::type g)   \
+#define MOCK_METHOD7(ret, name, args, attr...)                                 \
+    INTERNAL_MOCK_METHOD7(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD7(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD7(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD7(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 7)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<3>::type d,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<4>::type e,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<5>::type f,    \
+        typename unittest::MockedFunction<mockName##7##T>::ArgT<6>::type g)    \
         attr {                                                                 \
-        return (mock_##name##_##7).run(a, b, c, d, e, f, g);                   \
+        return (mock_##mockName##_##7).run(a, b, c, d, e, f, g);               \
     }
 
 #define MOCK_METHOD8(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 8)                            \
-    ret name(typename unittest::MockedFunction<name##8##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<3>::type d,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<4>::type e,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<5>::type f,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<6>::type g,   \
-             typename unittest::MockedFunction<name##8##T>::ArgT<7>::type h)   \
+    INTERNAL_MOCK_METHOD8(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD8(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD8(ret, name, name##_const, args, const attr)
+
+#define INTERNAL_MOCK_METHOD8(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 8)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<3>::type d,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<4>::type e,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<5>::type f,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<6>::type g,    \
+        typename unittest::MockedFunction<mockName##8##T>::ArgT<7>::type h)    \
         attr {                                                                 \
-        return (mock_##name##_##8).run(a, b, c, d, e, f, g, h);                \
+        return (mock_##mockName##_##8).run(a, b, c, d, e, f, g, h);            \
     }
 
 #define MOCK_METHOD9(ret, name, args, attr...)                                 \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 9)                            \
-    ret name(typename unittest::MockedFunction<name##9##T>::ArgT<0>::type a,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<1>::type b,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<2>::type c,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<3>::type d,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<4>::type e,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<5>::type f,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<6>::type g,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<7>::type h,   \
-             typename unittest::MockedFunction<name##9##T>::ArgT<8>::type i)   \
-        attr {                                                                 \
-        return (mock_##name##_##9).run(a, b, c, d, e, f, g, h, i);             \
-    }
+    INTERNAL_MOCK_METHOD9(ret, name, name, args, attr)
+#define MOCK_CONST_METHOD9(ret, name, args, attr...)                           \
+    INTERNAL_MOCK_METHOD9(ret, name, name##_const, args, const attr)
 
-#define MOCK_METHOD10(ret, name, args, attr...)                                \
-    INTERNAL_MOCK_METHOD_COMMON(ret, name, args, 10)                           \
-    ret name(typename unittest::MockedFunction<name##10##T>::ArgT<0>::type a,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<1>::type b,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<2>::type c,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<3>::type d,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<4>::type e,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<5>::type f,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<6>::type g,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<7>::type h,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<8>::type i,  \
-             typename unittest::MockedFunction<name##10##T>::ArgT<9>::type j)  \
+#define INTERNAL_MOCK_METHOD9(ret, name, mockName, args, attr...)              \
+    INTERNAL_MOCK_METHOD_COMMON(ret, mockName, args, 9)                        \
+    ret name(                                                                  \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<0>::type a,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<1>::type b,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<2>::type c,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<3>::type d,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<4>::type e,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<5>::type f,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<6>::type g,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<7>::type h,    \
+        typename unittest::MockedFunction<mockName##9##T>::ArgT<8>::type i)    \
         attr {                                                                 \
-        return (mock_##name##_##10).run(a, b, c, d, e, f, g, h, i, j);         \
+        return (mock_##mockName##_##9).run(a, b, c, d, e, f, g, h, i);         \
     }
 
 #define INTERNAL_MOCK_METHOD_COMMON(ret, name, args, uniqueid)                 \

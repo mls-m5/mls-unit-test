@@ -9,6 +9,7 @@ public:
     virtual int update() = 0;
     virtual void value(int) = 0;
     virtual int value() const = 0;
+    virtual void value(int, int, double, double) const = 0;
 };
 
 //! Example of a class that could be tested
@@ -43,9 +44,40 @@ struct TestStruct {
 
 class MockObject : public IObject {
 public:
-    MOCK_METHOD0(int, update, ())
-    MOCK_METHOD1(void, value, (int))
-    MOCK_METHOD0(int, value, (), const);
+    MOCK_METHOD0(int, update, (), override)
+    MOCK_METHOD1(void, value, (int), override)
+    MOCK_CONST_METHOD0(int, value, (), override);
+};
+
+//! Test of all macros
+struct A {
+    MOCK_METHOD0(int, value, (), );
+    MOCK_METHOD1(int, value, (int), );
+    MOCK_METHOD2(int, value, (int, int), );
+    MOCK_METHOD3(int, value, (int, int, int), );
+    MOCK_METHOD4(int, value, (int, int, int, int), );
+    MOCK_METHOD5(int, value, (int, int, int, int, int), );
+    MOCK_METHOD6(int, value, (int, int, int, int, int, int), );
+    MOCK_METHOD7(int, value, (int, int, int, int, int, int, int), );
+    MOCK_METHOD8(int, value, (int, int, int, int, int, int, int, int), );
+    MOCK_METHOD9(int, value, (int, int, int, int, int, int, int, int, int), );
+};
+
+//! Const macros
+struct B {
+
+    MOCK_CONST_METHOD0(int, value, (), );
+    MOCK_CONST_METHOD1(int, value, (int), );
+    MOCK_CONST_METHOD2(int, value, (int, int), );
+    MOCK_CONST_METHOD3(int, value, (int, int, int), );
+    MOCK_CONST_METHOD4(int, value, (int, int, int, int), );
+    MOCK_CONST_METHOD5(int, value, (int, int, int, int, int), );
+    MOCK_CONST_METHOD6(int, value, (int, int, int, int, int, int), );
+    MOCK_CONST_METHOD7(int, value, (int, int, int, int, int, int, int), );
+    MOCK_CONST_METHOD8(int, value, (int, int, int, int, int, int, int, int), );
+    MOCK_CONST_METHOD9(int,
+                       value,
+                       (int, int, int, int, int, int, int, int, int), );
 };
 
 // Begining of actual test code
