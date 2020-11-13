@@ -9,7 +9,6 @@ public:
     virtual int update() = 0;
     virtual void value(int) = 0;
     virtual int value() const = 0;
-    virtual void value(int, int, double, double) const = 0;
 };
 
 //! Example of a class that could be tested
