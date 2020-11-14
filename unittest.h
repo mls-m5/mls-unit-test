@@ -8,11 +8,11 @@
 
 #pragma once
 
+#include "unittestvars.h"
 #include <functional>
 #include <iostream>
 #include <map>
 #include <string>
-#include "unittestvars.h"
 
 namespace unittest {
 
@@ -104,6 +104,7 @@ inline int runTests(int argc, char **argv) {
         }
         if (testResult == -2) {
             cout << " --> crashed" << endl << endl;
+            ++numFailed;
             testResults[it.first] = "crashed!";
         }
         else if (testResult) {
