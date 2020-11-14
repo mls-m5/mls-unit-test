@@ -237,8 +237,8 @@ struct ReturnStruct<T &> {
             return *value;
         }
         throw std::runtime_error(
-            std::string("no return value for reference set ") +
-            typeid(type).name());
+            std::string("no return value for reference set ")); // +
+        //            typeid(type).name());
     }
 };
 
