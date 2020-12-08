@@ -231,7 +231,7 @@ inline void semicolon(){};
         if (a + e < b || a > b + e) {                                          \
             PRINT_INFO;                                                        \
             std::cout << #x << " is not near " << #y << std::endl;             \
-            ++test_result;                                                     \
+            ++testResult;                                                      \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
