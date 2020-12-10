@@ -230,7 +230,8 @@ inline void semicolon(){};
         auto b = (y);                                                          \
         if (a + e < b || a > b + e) {                                          \
             PRINT_INFO;                                                        \
-            std::cout << #x << " is not near " << #y << std::endl;             \
+            std::cout << #x << " == " << x << " is not near " << #y            \
+                      << std::endl;                                            \
             ++testResult;                                                      \
         }                                                                      \
     }                                                                          \
