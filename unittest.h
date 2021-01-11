@@ -187,8 +187,8 @@ inline void semicolon(){};
     if (!((x) == (y))) {                                                       \
         PRINT_INFO;                                                            \
         testResult++;                                                          \
-        std::cout << #x << " = " << x << " is not equal to " << #y << " = "    \
-                  << y << std::endl;                                           \
+        std::cout << #x << " = '" << x << "' is not equal to " << #y << " = '" \
+                  << y << "'" << std::endl;                                    \
         testResult++;                                                          \
         return;                                                                \
     }                                                                          \
