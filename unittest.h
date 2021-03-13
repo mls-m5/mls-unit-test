@@ -237,6 +237,28 @@ inline void semicolon(){};
     }                                                                          \
     unittest::semicolon()
 
+#define EXPECT_TRUE(expression)                                                \
+    {                                                                          \
+        auto test_var_x = static_cast<bool>(expression);                       \
+        if (!test_var_x) {                                                     \
+            PRINT_INFO;                                                        \
+            std::cout << #expression << " == " << test_var_x                   \
+                      << " is not true as expected " << std::endl;             \
+        }                                                                      \
+    }                                                                          \
+    unittest::semicolon()
+
+#define EXPECT_FALSE(expression)                                               \
+    {                                                                          \
+        auto test_var_x = static_cast<bool>(expression);                       \
+        if (test_var_x) {                                                      \
+            PRINT_INFO;                                                        \
+            std::cout << #expression << " == " << test_var_x                   \
+                      << " is not false as expected " << std::endl;            \
+        }                                                                      \
+    }                                                                          \
+    unittest::semicolon()
+
 #define EXPECT_THROW(expression, error)                                        \
     {                                                                          \
         bool threw = false;                                                    \
