@@ -15,3 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: make
       run: make
+    - name: example1
+      run: ./example1-basic
+    - name: example2 #this should fail
+      run: (! ./example2-mocks)

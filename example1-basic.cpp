@@ -1,16 +1,4 @@
-mls-unit-test
-=============
-
-A minimalist single header unittest.
-
-Compile with at least -std=c++14 or similar.
-
-
-Simple example usage
-
-```c++
-
-#include "mls-unit-test/unittest.h"
+#include "unittest.h"
 #include <limits>
 #include <memory>
 
@@ -48,8 +36,3 @@ TEST_CASE("exceptions") {
 }
 
 TEST_SUIT_END
-
-
-```
-
-Se example*.cpp for more usage examples

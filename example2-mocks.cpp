@@ -15,9 +15,7 @@ public:
 struct TestStruct {
     TestStruct(IObject *object) : _object(object) {}
 
-    TestStruct(int value, IObject *object) : _object(object) {
-        a(value);
-    }
+    TestStruct(int value, IObject *object) : _a(0), _object(object) {}
 
     bool operator==(TestStruct &s) {
         if (a() == s.a()) {
@@ -90,12 +88,14 @@ SETUP {
 
 TEST_CASE("equalization test") {
     MockObject object;
-    TestStruct testStruct1(1, &object), testStruct2(1, &object);
+    auto testStruct1 = TestStruct(1, &object);
+    auto testStruct2 = TestStruct(1, &object);
 
     ASSERT(testStruct1 == testStruct2, "something went wrong");
 
     // The same test but in another way
-    ASSERT_EQ(testStruct1.a(), testStruct2.a());
+    EXPECT_EQ(10, 10);
+    EXPECT_EQ(testStruct1.a(), testStruct2.a());
 }
 
 TEST_CASE("failing test") {
@@ -107,7 +107,7 @@ TEST_CASE("failing test") {
     testStruct1.a(1);
     testStruct2.a(2);
 
-    ASSERT_EQ(testStruct1.a(), testStruct2.a());
+    EXPECT_EQ(testStruct1.a(), testStruct2.a());
 }
 
 TEST_SUIT_END

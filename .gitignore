@@ -27,4 +27,5 @@
 *.out
 *.app
 
-example1
+example1-basic
+example2-mocks
