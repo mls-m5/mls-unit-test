@@ -254,6 +254,7 @@ inline void semicolon(){};
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not true as expected " << std::endl;             \
+            ++testResult;                                                      \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
@@ -265,6 +266,7 @@ inline void semicolon(){};
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not false as expected " << std::endl;            \
+            ++testResult;                                                      \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
