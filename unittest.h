@@ -172,66 +172,76 @@ inline void semicolon(){};
 //! -------------- Asserts and tests -----------------------------------
 
 #define PRINT_INFO std::cout << __FILE__ << ":" << __LINE__ << ": ";
-#define ASSERT(x, error)                                                       \
-    if (!(x)) {                                                                \
+#define ASSERT(test_var_x, error)                                              \
+    if (!(test_var_x)) {                                                       \
         PRINT_INFO;                                                            \
         testResult++;                                                          \
-        std::cout << #x << ": " << error << std::endl;                         \
+        std::cout << #test_var_x << ": " << error << std::endl;                \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
 
-#define EXPECT(x) ASSERT(x, "expression is not true")
+#define EXPECT(test_var_x) ASSERT(test_var_x, "expression is not true")
 
-#define ASSERT_EQ(x, y)                                                        \
-    if (!((x) == (y))) {                                                       \
+// Support old syntax
+#define ASSERT_EQ EXPECT_EQ
+#define ASSERT_NE EXPECT_NE
+#define ASSERT_GT EXPECT_GT
+#define ASSERT_LT EXPECT_LT
+#define ASSERT_NEAR EXPECT_LT
+
+#define EXPECT_EQ(test_var_x, test_var_y)                                      \
+    if (!((test_var_x) == (test_var_y))) {                                     \
         PRINT_INFO;                                                            \
         testResult++;                                                          \
-        std::cout << #x << " = '" << x << "' is not equal to " << #y << " = '" \
-                  << y << "'" << std::endl;                                    \
-        testResult++;                                                          \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define ASSERT_NE(x, y)                                                        \
-    if (((x) == (y))) {                                                        \
-        PRINT_INFO;                                                            \
-        std::cout << #x << " = " << x << " is equal to " << #y << " = " << y   \
-                  << std::endl;                                                \
-        testResult++;                                                          \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define ASSERT_GT(x, y)                                                        \
-    if (!((x) > (y))) {                                                        \
-        PRINT_INFO;                                                            \
-        std::cout << #x << " = " << x << " is not greater than " << #y         \
-                  << " = " << y << std::endl;                                  \
+        std::cout << #test_var_x << " = '" << test_var_x                       \
+                  << "' is not equal to " << #test_var_y << " = '"             \
+                  << test_var_y << "'" << std::endl;                           \
         testResult++;                                                          \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
 
-#define ASSERT_LT(x, y)                                                        \
-    if (!((x) < (y))) {                                                        \
+#define EXPECT_NE(test_var_x, test_var_y)                                      \
+    if ((test_var_x) == (test_var_y)) {                                        \
         PRINT_INFO;                                                            \
-        std::cout << #x << " = " << x << " is not less than " << #y << " = "   \
-                  << y << std::endl;                                           \
+        std::cout << #test_var_x << " = " << test_var_x << " is equal to "     \
+                  << #test_var_y << " = " << test_var_y << std::endl;          \
         testResult++;                                                          \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
 
-#define ASSERT_NEAR(x, y, e)                                                   \
+#define EXPECT_GT(test_var_x, test_var_y)                                      \
+    if (!((test_var_x) > (test_var_y))) {                                      \
+        PRINT_INFO;                                                            \
+        std::cout << #test_var_x << " = " << test_var_x                        \
+                  << " is not greater than " << #test_var_y << " = "           \
+                  << test_var_y << std::endl;                                  \
+        testResult++;                                                          \
+        return;                                                                \
+    }                                                                          \
+    unittest::semicolon()
+
+#define EXPECT_LT(test_var_x, test_var_y)                                      \
+    if (!((test_var_x) < (test_var_y))) {                                      \
+        PRINT_INFO;                                                            \
+        std::cout << #test_var_x << " = " << test_var_x                        \
+                  << " is not less than " << #test_var_y << " = "              \
+                  << test_var_y << std::endl;                                  \
+        testResult++;                                                          \
+        return;                                                                \
+    }                                                                          \
+    unittest::semicolon()
+
+#define EXPECT_NEAR(test_var_x, test_var_y, test_var_e)                        \
     {                                                                          \
-        auto a = (x);                                                          \
-        auto b = (y);                                                          \
-        if (a + e < b || a > b + e) {                                          \
+        auto a = (test_var_x);                                                 \
+        auto b = (test_var_y);                                                 \
+        if (a + test_var_e < b || a > b + test_var_e) {                        \
             PRINT_INFO;                                                        \
-            std::cout << #x << " == " << x << " is not near " << #y            \
-                      << std::endl;                                            \
+            std::cout << #test_var_x << " == " << test_var_x                   \
+                      << " is not near " << #test_var_y << std::endl;          \
             ++testResult;                                                      \
         }                                                                      \
     }                                                                          \
