@@ -193,11 +193,11 @@ inline void semicolon(){};
 #define EXPECT_EQ(test_var_x, test_var_y)                                      \
     if (!((test_var_x) == (test_var_y))) {                                     \
         PRINT_INFO;                                                            \
-        testResult++;                                                          \
+        unittest::testResult++;                                                \
         std::cout << #test_var_x << " = '" << test_var_x                       \
                   << "' is not equal to " << #test_var_y << " = '"             \
                   << test_var_y << "'" << std::endl;                           \
-        testResult++;                                                          \
+        unittest::testResult++;                                                \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -207,7 +207,7 @@ inline void semicolon(){};
         PRINT_INFO;                                                            \
         std::cout << #test_var_x << " = " << test_var_x << " is equal to "     \
                   << #test_var_y << " = " << test_var_y << std::endl;          \
-        testResult++;                                                          \
+        unittest::testResult++;                                                \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -218,7 +218,7 @@ inline void semicolon(){};
         std::cout << #test_var_x << " = " << test_var_x                        \
                   << " is not greater than " << #test_var_y << " = "           \
                   << test_var_y << std::endl;                                  \
-        testResult++;                                                          \
+        unittest::testResult++;                                                \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -229,7 +229,7 @@ inline void semicolon(){};
         std::cout << #test_var_x << " = " << test_var_x                        \
                   << " is not less than " << #test_var_y << " = "              \
                   << test_var_y << std::endl;                                  \
-        testResult++;                                                          \
+        unittest::testResult++;                                                \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -254,7 +254,7 @@ inline void semicolon(){};
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not true as expected " << std::endl;             \
-            ++testResult;                                                      \
+            ++unittest::testResult;                                            \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
@@ -266,7 +266,7 @@ inline void semicolon(){};
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not false as expected " << std::endl;            \
-            ++testResult;                                                      \
+            ++unittest::testResult;                                            \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
@@ -283,7 +283,7 @@ inline void semicolon(){};
         if (!threw) {                                                          \
             std::cout << "Expected exeption " << #error << ": got none"        \
                       << std::endl;                                            \
-            testResult++;                                                      \
+            unittest::testResult++;                                            \
             return;                                                            \
         }                                                                      \
     }                                                                          \
@@ -292,7 +292,7 @@ inline void semicolon(){};
 #define ERROR(error)                                                           \
     PRINT_INFO;                                                                \
     std::cout << error << std::endl;                                           \
-    testResult++;                                                              \
+    unittest::testResult++;                                                    \
     return;                                                                    \
     unittest::semicolon()
 
