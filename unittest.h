@@ -243,6 +243,7 @@ inline void semicolon(){};
             std::cout << #test_var_x << " == " << test_var_x                   \
                       << " is not near " << #test_var_y << std::endl;          \
             ++testResult;                                                      \
+            return;                                                            \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
@@ -255,6 +256,7 @@ inline void semicolon(){};
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not true as expected " << std::endl;             \
             ++unittest::testResult;                                            \
+            return;                                                            \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
@@ -267,6 +269,7 @@ inline void semicolon(){};
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not false as expected " << std::endl;            \
             ++unittest::testResult;                                            \
+            return;                                                            \
         }                                                                      \
     }                                                                          \
     unittest::semicolon()
