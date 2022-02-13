@@ -60,6 +60,7 @@ inline int runTests(int argc, char **argv) {
     using std::endl;
     int numFailed = 0;
     int numSucceded = 0;
+    int numInactive = 0;
 
     if (!parseArguments(argc, argv)) {
         return 0;
@@ -72,6 +73,12 @@ inline int runTests(int argc, char **argv) {
     cout << "==== Starts test suit " << testFileName << " ====" << endl << endl;
 
     for (auto it : testMap) {
+        if (it.first.rfind("disabled ", 0) == 0) {
+            testResults[it.first] = "disabled";
+            ++numInactive;
+            continue;
+        }
+
         cout << "=== running test: " << it.first << " ===" << endl;
         testResult = 0;
 
@@ -110,11 +117,11 @@ inline int runTests(int argc, char **argv) {
         else if (testResult) {
             cout << " --> failed" << endl << endl << endl << endl;
             numFailed++;
-            testResults[it.first] = "failed";
+            testResults[it.first] = "fail";
         }
         else {
             cout << " --> success " << endl << endl << endl << endl;
-            testResults[it.first] = "succeded";
+            testResults[it.first] = "pass";
             numSucceded++;
         }
     }
@@ -126,7 +133,12 @@ inline int runTests(int argc, char **argv) {
         for (int i = it.second.size(); i < 15; ++i) {
             cout << " ";
         }
-        cout << " " << it.first << endl;
+        if (it.first.rfind("disabled ", 0) == 0) {
+            cout << " " << it.first.substr(9) << "\n";
+        }
+        else {
+            cout << " " << it.first << "\n";
+        }
     }
     cout << endl;
     if (numFailed) {
@@ -135,8 +147,11 @@ inline int runTests(int argc, char **argv) {
     else {
         cout << "SUCCESS...";
     }
-    cout << endl;
-    cout << "Failed: " << numFailed << " Succeded: " << numSucceded << endl;
+    cout << "\n";
+    if (numInactive) {
+        cout << "(Disabled: " << numInactive << ") ";
+    }
+    cout << "Failed: " << numFailed << " Passed: " << numSucceded << endl;
 
     return numFailed > 0;
 }

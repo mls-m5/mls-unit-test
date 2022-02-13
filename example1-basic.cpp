@@ -35,4 +35,8 @@ TEST_CASE("exceptions") {
     EXPECT_THROW(f(), std::runtime_error);
 }
 
+TEST_CASE("disabled unused test") {
+    // This will never run
+}
+
 TEST_SUIT_END
