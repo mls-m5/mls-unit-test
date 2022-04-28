@@ -16,7 +16,7 @@
 
 namespace unittest {
 
-typedef void (*testFunction)();
+using testFunction = std::function<void()>;
 
 extern std::map<std::string, testFunction> testMap;
 
