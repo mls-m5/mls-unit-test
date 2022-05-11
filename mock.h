@@ -325,7 +325,7 @@ public:
     auto &expectArgs(ArgsT... args) const {
         auto argTuple = std::tuple<ArgsT...>{args...};
 
-        _expectedArgs = [argTuple](ArgsT &&... a) -> bool {
+        _expectedArgs = [argTuple](ArgsT &&...a) -> bool {
             auto comparisonTuple = std::tuple<ArgsT...>{a...};
             return comparisonTuple == argTuple;
         };

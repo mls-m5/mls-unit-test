@@ -157,7 +157,7 @@ inline int runTests(int argc, char **argv) {
 }
 
 // Function to require semicolon after macro
-inline void semicolon(){};
+inline void semicolon() {}
 
 } // namespace unittest
 
