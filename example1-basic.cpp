@@ -2,7 +2,7 @@
 #include <limits>
 #include <memory>
 
-TEST_SUIT_BEGIN
+TEST_SUIT_BEGIN(Example1)
 
 TEST_CASE("Bool assertions") {
     struct S {};

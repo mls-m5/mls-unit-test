@@ -80,7 +80,7 @@ struct B {
 // Begining of actual test code
 // This is what is supposed to be in a test file
 
-TEST_SUIT_BEGIN
+TEST_SUIT_BEGIN(Mocks)
 
 SETUP {
     // Do setup required by the test, or just ommit this function

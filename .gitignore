@@ -29,3 +29,7 @@
 
 example1-basic
 example2-mocks
+
+.qtc_clangd/
+test_main
+

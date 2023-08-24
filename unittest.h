@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "expect.h"
+#include "registertest.h"
 #include "unittestvars.h"
 #include <functional>
 #include <iostream>
@@ -54,6 +56,7 @@ inline int parseArguments(int argc, char **argv) {
     return 1;
 }
 
+#if 0
 //! The main function used for running all the tests
 inline int runTests(int argc, char **argv) {
     using std::cout;
@@ -155,169 +158,44 @@ inline int runTests(int argc, char **argv) {
 
     return numFailed > 0;
 }
+#endif
 
 // Function to require semicolon after macro
 inline void semicolon() {}
 
 } // namespace unittest
 
-#define TEST_SUIT_BEGIN                                                        \
-    std::map<std::string, unittest::testFunction> unittest::testMap;           \
-    int unittest::testResult;                                                  \
-    const char *unittest::testFileName = __FILE__;                             \
-    void unittest::initTests() {                                               \
-        unittest::semicolon()
+#define TEST_SUIT_BEGIN(testName)                                              \
+    struct TestSuit##testName : public unittest::StaticTestSuit {              \
+        TestSuit##testName();                                                  \
+    } TestSuit##testName##__instance;                                          \
+    TestSuit##testName::TestSuit##testName() : unittest::StaticTestSuit{} {    \
+        this->testSuitName = #testName;                                        \
+        unittest::testResult = &this->testResult;
+
+// #define TEST_SUIT_BEGIN
+//     std::map<std::string, unittest::testFunction> unittest::testMap;
+//     int unittest::testResult;
+//     const char *unittest::testFileName = __FILE__;
+//     void unittest::initTests() {
+//         unittest::semicolon()
 
 #define TEST_CASE(name)                                                        \
     ;                                                                          \
-    unittest::testMap[name] = []() -> void
+    newTest(name) = [this]() -> void
 
 #define TEST_SUIT_END                                                          \
     ;                                                                          \
-    }                                                                          \
-    int main(int argc, char **argv) {                                          \
-        unittest::initTests();                                                 \
-        return unittest::runTests(argc, argv);                                 \
     }
+
+// #define TEST_SUIT_END
+//     ;
+//     }
+//     int main(int argc, char **argv) {
+//         unittest::initTests();
+//         return unittest::runTests(argc, argv);
+//     }
 
 #define SETUP                                                                  \
     ;                                                                          \
     unittest::setup = []() -> void
-
-//! -------------- Asserts and tests -----------------------------------
-
-#define PRINT_INFO std::cout << __FILE__ << ":" << __LINE__ << ": ";
-#define ASSERT(test_var_x, error)                                              \
-    if (!(test_var_x)) {                                                       \
-        PRINT_INFO;                                                            \
-        testResult++;                                                          \
-        std::cout << #test_var_x << ": " << error << std::endl;                \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT(test_var_x) ASSERT(test_var_x, "expression is not true")
-
-// Support old syntax
-#define ASSERT_EQ EXPECT_EQ
-#define ASSERT_NE EXPECT_NE
-#define ASSERT_GT EXPECT_GT
-#define ASSERT_LT EXPECT_LT
-#define ASSERT_NEAR EXPECT_LT
-
-#define EXPECT_EQ(test_var_x, test_var_y)                                      \
-    if (!((test_var_x) == (test_var_y))) {                                     \
-        PRINT_INFO;                                                            \
-        unittest::testResult++;                                                \
-        std::cout << #test_var_x << " = '" << test_var_x                       \
-                  << "' is not equal to " << #test_var_y << " = '"             \
-                  << test_var_y << "'" << std::endl;                           \
-        unittest::testResult++;                                                \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_NE(test_var_x, test_var_y)                                      \
-    if ((test_var_x) == (test_var_y)) {                                        \
-        PRINT_INFO;                                                            \
-        std::cout << #test_var_x << " = " << test_var_x << " is equal to "     \
-                  << #test_var_y << " = " << test_var_y << std::endl;          \
-        unittest::testResult++;                                                \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_GT(test_var_x, test_var_y)                                      \
-    if (!((test_var_x) > (test_var_y))) {                                      \
-        PRINT_INFO;                                                            \
-        std::cout << #test_var_x << " = " << test_var_x                        \
-                  << " is not greater than " << #test_var_y << " = "           \
-                  << test_var_y << std::endl;                                  \
-        unittest::testResult++;                                                \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_LT(test_var_x, test_var_y)                                      \
-    if (!((test_var_x) < (test_var_y))) {                                      \
-        PRINT_INFO;                                                            \
-        std::cout << #test_var_x << " = " << test_var_x                        \
-                  << " is not less than " << #test_var_y << " = "              \
-                  << test_var_y << std::endl;                                  \
-        unittest::testResult++;                                                \
-        return;                                                                \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_NEAR(test_var_x, test_var_y, test_var_e)                        \
-    {                                                                          \
-        auto a = (test_var_x);                                                 \
-        auto b = (test_var_y);                                                 \
-        if (a + test_var_e < b || a > b + test_var_e) {                        \
-            PRINT_INFO;                                                        \
-            std::cout << #test_var_x << " == " << test_var_x                   \
-                      << " is not near " << #test_var_y << std::endl;          \
-            ++testResult;                                                      \
-            return;                                                            \
-        }                                                                      \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_TRUE(expression)                                                \
-    {                                                                          \
-        auto test_var_x = static_cast<bool>(expression);                       \
-        if (!test_var_x) {                                                     \
-            PRINT_INFO;                                                        \
-            std::cout << #expression << " == " << test_var_x                   \
-                      << " is not true as expected " << std::endl;             \
-            ++unittest::testResult;                                            \
-            return;                                                            \
-        }                                                                      \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_FALSE(expression)                                               \
-    {                                                                          \
-        auto test_var_x = static_cast<bool>(expression);                       \
-        if (test_var_x) {                                                      \
-            PRINT_INFO;                                                        \
-            std::cout << #expression << " == " << test_var_x                   \
-                      << " is not false as expected " << std::endl;            \
-            ++unittest::testResult;                                            \
-            return;                                                            \
-        }                                                                      \
-    }                                                                          \
-    unittest::semicolon()
-
-#define EXPECT_THROW(expression, error)                                        \
-    {                                                                          \
-        bool threw = false;                                                    \
-        try {                                                                  \
-            expression;                                                        \
-        }                                                                      \
-        catch (error & e) {                                                    \
-            threw = true;                                                      \
-        }                                                                      \
-        if (!threw) {                                                          \
-            std::cout << "Expected exeption " << #error << ": got none"        \
-                      << std::endl;                                            \
-            unittest::testResult++;                                            \
-            return;                                                            \
-        }                                                                      \
-    }                                                                          \
-    unittest::semicolon()
-
-#define ERROR(error)                                                           \
-    PRINT_INFO;                                                                \
-    std::cout << error << std::endl;                                           \
-    unittest::testResult++;                                                    \
-    return;                                                                    \
-    unittest::semicolon()
-
-// The not implemented error is used to flag for wanted features not implemented
-#define ERROR_NOT_IMPLEMENTED()                                                \
-    PRINT_INFO;                                                                \
-    std::cout << "not implemented" << std::endl;                               \
-    testResult = -1;                                                           \
-    return;                                                                    \
-    unittest::semicolon()

@@ -5,11 +5,11 @@
 namespace unittest {
 
 //! If testResult is not 0 the current test has failed
-extern int testResult;
+inline int *testResult = nullptr;
 extern const char *testFileName;
 
 //! Mark the test as failed
-void failTest() {
+inline void failTest() {
     ++testResult;
 }
 
