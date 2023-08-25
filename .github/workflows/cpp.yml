@@ -16,6 +16,6 @@ jobs:
     - name: make
       run: make
     - name: example1
-      run: ./example1-basic
+      run: ./test_main Example1
     - name: example2 #this should fail
-      run: (! ./example2-mocks)
+      run: (! ./test_main Mocks)
