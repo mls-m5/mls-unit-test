@@ -1,10 +1,14 @@
 #pragma once
 
+#include "unittestvars.h"
 #include <functional>
+#include <iomanip>
+#include <ios>
 #include <iostream>
 #include <list>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace unittest {
 
@@ -24,7 +28,10 @@ struct Tests {
         return reg;
     }
 
-    void run();
+    int run(int argc, char **argv);
+
+    //! Check which tests should be used or list tests
+    int parseArguments(int argc, char **argv);
 
     std::vector<StaticTestSuit *> tests;
 };
@@ -39,6 +46,7 @@ struct StaticTestSuit {
         std::string name;
         std::function<void()> f = {};
         std::string result = {};
+        bool isEnabled = true;
     };
 
     /// List instead of vector to keep position in memory
@@ -46,6 +54,12 @@ struct StaticTestSuit {
 
     std::string testSuitName;
     int testResult = 0;
+
+    int numFailed = 0;
+    int numSucceded = 0;
+    int numInactive = 0;
+
+    bool isEnabled = true;
 
     std::function<void()> &newTest(std::string testName) {
         return add(testSuitName, testName);
@@ -60,26 +74,40 @@ struct StaticTestSuit {
         return entries.back().f;
     }
 
-    int run() {
+    int run(std::vector<std::string_view> enabledTests) {
+        unittest::testResult = &testResult;
+        //        using unittest::testResult;
+
         using std::cout;
         using std::endl;
-        int numFailed = 0;
-        int numSucceded = 0;
-        int numInactive = 0;
 
-        //        if (!parseArguments(argc, argv)) {
-        //            return 0;
-        //        }
+        if (!enabledTests.empty()) {
+            //            for (auto it = entries.begin(); it != entries.end();
+            //            ++it) {
+            for (auto &entry : entries) {
+                //                auto &entry = *it;
+                entry.isEnabled = false;
+                for (auto &name : enabledTests) {
+                    if (entry.name.find(name) != std::string::npos) {
+                        entry.isEnabled = true;
+                        break;
+                    }
+                }
 
-        //        if (setup) {
-        //            setup();
-        //        }
+                //                if (isEnabled) {
+                //                    ++it;
+                //                }
+                //                else {
+                //                    it = entries.erase(it);
+                //                }
+            }
+        }
 
         cout << "==== Starts test suit " << testSuitName << " ====" << endl
              << endl;
 
         for (auto &it : entries) {
-            if (it.name.rfind("disabled ", 0) == 0) {
+            if (!it.isEnabled || it.name.rfind("disabled ", 0) == 0) {
                 it.result = "disabled";
                 //                it.result = "disabled";
                 ++numInactive;
@@ -164,30 +192,104 @@ struct StaticTestSuit {
     }
 };
 
-// struct RegisterTestStatic {
-//     Tests::TestEntry &entry;
-
-//    RegisterTestStatic(const RegisterTestStatic &) = default;
-//    RegisterTestStatic(RegisterTestStatic &&) = default;
-//    RegisterTestStatic &operator=(const RegisterTestStatic &) = delete;
-//    RegisterTestStatic &operator=(RegisterTestStatic &&) = delete;
-//    ~RegisterTestStatic();
-
-//    RegisterTestStatic(std::string_view suitName, std::string_view testName)
-//        : entry{Tests::instance().add(suitName, testName)} {}
-
-//    RegisterTestStatic &operator=(std::function<void()> f) {
-//        entry.f = f;
-//        return *this;
-//    }
-//};
-
 inline Tests::~Tests() = default;
 
-inline void Tests::run() {
+inline int Tests::run(int argc, char **argv) {
+    parseArguments(argc, argv);
     for (auto &test : tests) {
-        test->run();
+        if (test->isEnabled) {
+            test->run({});
+        }
     }
+
+    if (tests.size() <= 1) {
+        if (tests.size() == 1) {
+            return tests.front()->numFailed;
+        }
+        return 0;
+    }
+
+    std::cout << "\n\n ====== Tests summary: ===============\n";
+
+    int ret = 0;
+
+    int numFailedSuits = 0;
+
+    for (auto &test : tests) {
+        if (!test->isEnabled) {
+            std::cout << std::setw(30) << std::left << test->testSuitName;
+            std::cout << std::setw(8) << std::left << "skipped\n";
+            continue;
+        }
+        if (test->numFailed > 0) {
+            ret = -1;
+            ++numFailedSuits;
+        }
+        std::cout << std::setw(30) << std::left << test->testSuitName;
+        std::cout << std::setw(8) << std::left
+                  << ((test->numFailed > 0) ? "failed" : "passed");
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+    std::cout << numFailedSuits << " of " << tests.size()
+              << " test suits failed failed \n";
+
+    std::cout.flush();
+
+    return ret;
+}
+
+inline int Tests::parseArguments(int argc, char **argv) {
+    // Let the user choose test from command line
+    if (argc > 1) {
+        auto args = std::vector<std::string>(argv + 1, argv + argc);
+
+        if (args.at(0) == "-l") {
+            std::cout << "available tests:" << std::endl;
+            for (auto &test : tests) {
+                std::cout << "Test Suit: " << test->testSuitName << "\n";
+
+                if (!test->isEnabled) {
+                    std::cout << "    "
+                              << "disabled\n";
+                    continue;
+                }
+                for (auto &entry : test->entries) {
+                    std::cout << "    " << entry.name << "\n";
+                }
+            }
+            return 0;
+        }
+
+        for (size_t i = 0; i < args.size(); ++i) {
+            auto arg = args.at(i);
+        }
+
+        auto enabledTests = std::vector<std::string>{};
+        auto enabledTestSuit = std::string{};
+
+        for (size_t i = 0; i < args.size(); ++i) {
+            auto arg = args.at(i);
+            if (arg.front() == '-') {
+                if (arg == "--test") {
+                    auto name = args.at(++i);
+                    enabledTests.push_back(std::move(name));
+                }
+            }
+            else {
+                enabledTestSuit = arg;
+            }
+        }
+
+        if (!enabledTestSuit.empty()) {
+            for (auto &test : tests) {
+                test->isEnabled = test->testSuitName == enabledTestSuit;
+            }
+        }
+    }
+
+    return 1;
 }
 
 } // namespace unittest

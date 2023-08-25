@@ -82,10 +82,6 @@ struct B {
 
 TEST_SUIT_BEGIN(Mocks)
 
-SETUP {
-    // Do setup required by the test, or just ommit this function
-}
-
 TEST_CASE("equalization test") {
     MockObject object;
     auto testStruct1 = TestStruct(1, &object);

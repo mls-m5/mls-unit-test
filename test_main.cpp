@@ -3,5 +3,5 @@
 int main(int argc, char **argv) {
     using namespace unittest;
 
-    Tests::instance().run();
+    return Tests::instance().run(argc, argv);
 }

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "unittestvars.h"
+
 #define PRINT_INFO std::cout << __FILE__ << ":" << __LINE__ << ": ";
 #define ASSERT(test_var_x, error)                                              \
     if (!(test_var_x)) {                                                       \
         PRINT_INFO;                                                            \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         std::cout << #test_var_x << ": " << error << std::endl;                \
         return;                                                                \
     }                                                                          \
@@ -22,11 +24,11 @@
 #define EXPECT_EQ(test_var_x, test_var_y)                                      \
     if (!((test_var_x) == (test_var_y))) {                                     \
         PRINT_INFO;                                                            \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         std::cout << #test_var_x << " = '" << test_var_x                       \
                   << "' is not equal to " << #test_var_y << " = '"             \
                   << test_var_y << "'" << std::endl;                           \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -36,7 +38,7 @@
         PRINT_INFO;                                                            \
         std::cout << #test_var_x << " = " << test_var_x << " is equal to "     \
                   << #test_var_y << " = " << test_var_y << std::endl;          \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -47,7 +49,7 @@
         std::cout << #test_var_x << " = " << test_var_x                        \
                   << " is not greater than " << #test_var_y << " = "           \
                   << test_var_y << std::endl;                                  \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -58,7 +60,7 @@
         std::cout << #test_var_x << " = " << test_var_x                        \
                   << " is not less than " << #test_var_y << " = "              \
                   << test_var_y << std::endl;                                  \
-        unittest::testResult++;                                                \
+        unittest::failTest();                                                  \
         return;                                                                \
     }                                                                          \
     unittest::semicolon()
@@ -71,7 +73,7 @@
             PRINT_INFO;                                                        \
             std::cout << #test_var_x << " == " << test_var_x                   \
                       << " is not near " << #test_var_y << std::endl;          \
-            ++testResult;                                                      \
+            unittest::failTest();                                              \
             return;                                                            \
         }                                                                      \
     }                                                                          \
@@ -84,7 +86,7 @@
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not true as expected " << std::endl;             \
-            ++unittest::testResult;                                            \
+            unittest::failTest();                                              \
             return;                                                            \
         }                                                                      \
     }                                                                          \
@@ -97,7 +99,7 @@
             PRINT_INFO;                                                        \
             std::cout << #expression << " == " << test_var_x                   \
                       << " is not false as expected " << std::endl;            \
-            ++unittest::testResult;                                            \
+            unittest::failTest();                                              \
             return;                                                            \
         }                                                                      \
     }                                                                          \
@@ -115,7 +117,7 @@
         if (!threw) {                                                          \
             std::cout << "Expected exeption " << #error << ": got none"        \
                       << std::endl;                                            \
-            unittest::testResult++;                                            \
+            unittest::failTest();                                              \
             return;                                                            \
         }                                                                      \
     }                                                                          \
@@ -124,7 +126,7 @@
 #define ERROR(error)                                                           \
     PRINT_INFO;                                                                \
     std::cout << error << std::endl;                                           \
-    unittest::testResult++;                                                    \
+    unittest::failTest();                                                      \
     return;                                                                    \
     unittest::semicolon()
 
@@ -132,6 +134,6 @@
 #define ERROR_NOT_IMPLEMENTED()                                                \
     PRINT_INFO;                                                                \
     std::cout << "not implemented" << std::endl;                               \
-    testResult = -1;                                                           \
+    *testResult = -1;                                                          \
     return;                                                                    \
     unittest::semicolon()
