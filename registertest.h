@@ -117,29 +117,30 @@ struct StaticTestSuit {
             cout << "=== running test: " << it.name << " ===" << endl;
             testResult = 0;
 
-#ifdef DO_NOT_CATCH_ERRORS
-            it.f();
-#else
-            try {
+            if (!shouldCatchExceptions) {
                 it.f();
             }
-            catch (std::exception &e) {
-                std::cerr << "error: " << e.what() << endl;
-                testResult = -2;
+            else {
+                try {
+                    it.f();
+                }
+                catch (std::exception &e) {
+                    std::cerr << "error: " << e.what() << endl;
+                    testResult = -2;
+                }
+                catch (const char *c) {
+                    std::cerr << "error: " << c << endl;
+                    testResult = -2;
+                }
+                catch (const std::string &what) {
+                    std::cerr << "error: " << what << endl;
+                    testResult = -2;
+                }
+                catch (...) {
+                    std::cerr << "error" << endl;
+                    testResult = -2;
+                }
             }
-            catch (const char *c) {
-                std::cerr << "error: " << c << endl;
-                testResult = -2;
-            }
-            catch (const std::string &what) {
-                std::cerr << "error: " << what << endl;
-                testResult = -2;
-            }
-            catch (...) {
-                std::cerr << "error" << endl;
-                testResult = -2;
-            }
-#endif
             if (testResult == -1) {
                 cout << " --> not impl" << endl << endl;
                 it.result = "not implemented";
@@ -241,6 +242,11 @@ inline int Tests::run(int argc, char **argv) {
 }
 
 inline int Tests::parseArguments(int argc, char **argv) {
+    constexpr auto helpText = R"(
+--test [testname]       specify test
+--do-not-catch -n       disable error handling in tests
+--help                  print this text
+)";
     // Let the user choose test from command line
     if (argc > 1) {
         auto args = std::vector<std::string>(argv + 1, argv + argc);
@@ -262,10 +268,6 @@ inline int Tests::parseArguments(int argc, char **argv) {
             return 0;
         }
 
-        for (size_t i = 0; i < args.size(); ++i) {
-            auto arg = args.at(i);
-        }
-
         auto enabledTests = std::vector<std::string>{};
         auto enabledTestSuit = std::string{};
 
@@ -275,6 +277,18 @@ inline int Tests::parseArguments(int argc, char **argv) {
                 if (arg == "--test") {
                     auto name = args.at(++i);
                     enabledTests.push_back(std::move(name));
+                }
+                else if (arg == "--do-not-catch" || arg == "-n") {
+                    shouldCatchExceptions = false;
+                }
+                else if (arg == "--help" || arg == "-h") {
+                    std::cout << helpText << std::endl;
+                    std::exit(0);
+                }
+                else {
+                    std::cerr << "unvalid argument " << arg << "\n\n";
+                    std::cerr << helpText << std::endl;
+                    std::exit(1);
                 }
             }
             else {
