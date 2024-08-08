@@ -1,6 +1,7 @@
 #pragma once
 
 #include "unittestvars.h"
+#include <chrono>
 #include <functional>
 #include <iomanip>
 #include <ios>
@@ -117,6 +118,7 @@ struct StaticTestSuit {
             cout << "=== running test: " << it.name << " ===" << endl;
             testResult = 0;
 
+            auto start = std::chrono::high_resolution_clock::now();
             if (!shouldCatchExceptions) {
                 it.f();
             }
@@ -139,6 +141,26 @@ struct StaticTestSuit {
                 catch (...) {
                     std::cerr << "error" << endl;
                     testResult = -2;
+                }
+            }
+            auto stop = std::chrono::high_resolution_clock::now();
+
+            {
+                auto duration =
+                    std::chrono::duration_cast<std::chrono::microseconds>(
+                        stop - start);
+
+                if (duration.count() > 1000000) {
+                    std::cout << "\n(" << duration.count() / 1000'000.0 << " s)"
+                              << std::endl;
+                }
+                else if (duration.count() > 1000) {
+                    std::cout << "\n(" << duration.count() / 1000.0 << " ms)"
+                              << std::endl;
+                }
+                else {
+                    std::cout << "\n(" << duration.count() << " μs)"
+                              << std::endl;
                 }
             }
             if (testResult == -1) {
