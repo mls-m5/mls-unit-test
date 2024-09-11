@@ -69,7 +69,7 @@
     {                                                                          \
         auto a = (test_var_x);                                                 \
         auto b = (test_var_y);                                                 \
-        if (a + test_var_e < b || a > b + test_var_e) {                        \
+        if (!(a + test_var_e > b) || !(a < b + test_var_e)) {                  \
             PRINT_INFO;                                                        \
             std::cout << #test_var_x << " == " << test_var_x                   \
                       << " is not near " << #test_var_y << std::endl;          \
