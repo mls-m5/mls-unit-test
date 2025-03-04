@@ -69,8 +69,8 @@ struct StaticTestSuit {
     std::function<void()> &add(std::string_view suitName,
                                std::string_view testName) {
         entries.push_back({
-            .suit = std::string{suitName},
-            .name = std::string{testName},
+            std::string{suitName},
+            std::string{testName},
         });
         return entries.back().f;
     }
