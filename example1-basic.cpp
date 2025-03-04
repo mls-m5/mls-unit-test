@@ -26,7 +26,7 @@ TEST_CASE("float and numeric assertions") {
 
     EXPECT_GT(y, x);
     EXPECT_LT(x, y);
-    EXPECT_NEAR(x, z, std::numeric_limits<double>::min());
+    EXPECT_NEAR(x, z, std::numeric_limits<double>::epsilon());
 }
 
 TEST_CASE("exceptions") {

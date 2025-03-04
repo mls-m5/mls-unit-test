@@ -65,17 +65,18 @@
     }                                                                          \
     unittest::semicolon()
 
+// Epsilon is a factor on how much difference
 #define EXPECT_NEAR(test_var_x, test_var_y, test_var_e)                        \
-    {                                                                          \
-        auto a = (test_var_x);                                                 \
-        auto b = (test_var_y);                                                 \
-        if (!(a + test_var_e > b) || !(a < b + test_var_e)) {                  \
-            PRINT_INFO;                                                        \
-            std::cout << #test_var_x << " == " << test_var_x                   \
-                      << " is not near " << #test_var_y << std::endl;          \
-            unittest::failTest();                                              \
-            return;                                                            \
-        }                                                                      \
+    auto threshold = 1e-12; /* for handling when a = b = 0*/                   \
+    auto a = (test_var_x);                                                     \
+    auto b = (test_var_y);                                                     \
+    if (std::abs(b - a) >                                                      \
+        std::max(((test_var_e) * std::max(a, b)), threshold)) {                \
+        PRINT_INFO;                                                            \
+        std::cout << #test_var_x << " == " << test_var_x << " is not near "    \
+                  << #test_var_y << std::endl;                                 \
+        unittest::failTest();                                                  \
+        return;                                                                \
     }                                                                          \
     unittest::semicolon()
 
