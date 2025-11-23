@@ -13,6 +13,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <source_location>
 
 //! Usage:
 //! say you have a class like
@@ -277,6 +278,10 @@ public:
         ++_numCalls;
         if (_expectedArgs) {
             if (!_expectedArgs(args...)) {
+                std::cerr << _expectedArgsLocation.file_name() << ":"
+                          << _expectedArgsLocation.line() << ":"
+                          << _expectedArgsLocation.column() << ": "
+                          << _expectedArgsLocation.function_name() << '\n';
                 std::cerr << "Argument value(s) does not match expected "
                              "value(s) for function '"
                           << _name << "'\n";
@@ -292,9 +297,12 @@ public:
     //! Set the number times the function is expected to be called
     //! If expectCall is set previously a check is done before
     //! resetting the number of calls required
-    auto &expectNum(int num) const {
+    auto &expectNum(
+        int num,
+        std::source_location location = std::source_location::current()) const {
         checkCalls();
         _expectedNumCalls = num;
+        _expectedNumLocation = location;
 
         return *this;
     }
@@ -311,8 +319,11 @@ public:
     }
 
     //! Pass a function to check if arguments fullfill the
-    auto &expectArgs(std::function<bool(ArgsT...)> matcher) const {
+    auto &expectArgs(
+        std::function<bool(ArgsT...)> matcher,
+        std::source_location location = std::source_location::current()) const {
         _expectedArgs = matcher;
+        _expectedArgsLocation = location;
 
         if (!_expectedArgs) {
             expectMinNum(1);
@@ -390,6 +401,10 @@ private:
 
         if (_expectedNumCalls < 0) {
             if (-_numCalls > _expectedNumCalls) {
+                std::cerr << _expectedNumLocation.file_name() << ":"
+                          << _expectedNumLocation.line() << ":"
+                          << _expectedNumLocation.column() << ": "
+                          << _expectedNumLocation.function_name() << '\n';
                 std::cerr << "function " << _name
                           << " expected to be called at least "
                           << -_expectedNumCalls << " times but was called "
@@ -400,6 +415,10 @@ private:
         }
 
         if (_numCalls != _expectedNumCalls) {
+            std::cerr << _expectedNumLocation.file_name() << ":"
+                      << _expectedNumLocation.line() << ":"
+                      << _expectedNumLocation.column() << ": "
+                      << _expectedNumLocation.function_name() << '\n';
             std::cerr << "function " << _name << " expected to be called "
                       << _expectedNumCalls << " times but was called "
                       << _numCalls << " times \n";
@@ -411,7 +430,9 @@ private:
     }
 
     mutable std::function<ReturnT(ArgsT...)> _onCall;
+    mutable std::source_location _expectedNumLocation;
     mutable std::function<bool(ArgsT...)> _expectedArgs;
+    mutable std::source_location _expectedArgsLocation;
     mutable int _numCalls = 0;
     mutable int _expectedNumCalls = 0;
     std::string _name;
